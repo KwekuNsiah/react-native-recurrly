@@ -10,8 +10,7 @@ export const formatCurrency = (value: number, currency: string = "USD") => {
     }).format(value);
   } catch (error) {
     //fallback if currency code is invalid or formatting fails
-    const formattedValue = value.toFixed(2);
-    return `$${formattedValue}`;
+    return value.toFixed(2);
   }
 };
 
