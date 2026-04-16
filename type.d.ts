@@ -52,6 +52,61 @@ declare global {
   interface ListHeadingProps {
     title: string;
   }
+
+  // Auth Form Types
+  interface SignUpFormData {
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }
+
+  interface SignInFormData {
+    email: string;
+    password: string;
+  }
+
+  interface VerificationFormData {
+    code: string;
+  }
+
+  interface AuthError {
+    message: string;
+    code?: string;
+    field?: string;
+  }
+
+  interface FormInputProps {
+    label: string;
+    placeholder: string;
+    value: string;
+    onChangeText: (text: string) => void;
+    keyboardType?:
+      | "default"
+      | "numeric"
+      | "decimal-pad"
+      | "email-address"
+      | "phone-pad"
+      | "url"
+      | "web-search";
+    secureTextEntry?: boolean;
+    error?: string | null;
+    enabled?: boolean;
+    editable?: boolean;
+  }
+
+  interface AuthButtonProps {
+    label: string;
+    onPress: () => void;
+    loading?: boolean;
+    disabled?: boolean;
+    variant?: "primary" | "secondary";
+    testID?: string;
+  }
+
+  interface FormErrorProps {
+    error?: string | null;
+    testID?: string;
+  }
 }
 
 export {};
