@@ -8,7 +8,7 @@ import {
   validateSignInPassword,
   validateVerificationCode,
 } from "@/lib/validation";
-import { useSignIn } from "@clerk/expo";
+import { useAuth, useSignIn } from "@clerk/expo";
 import { Link, useRouter, type Href } from "expo-router";
 import { styled } from "nativewind";
 import React, { useState } from "react";
@@ -20,6 +20,7 @@ const SafeAreaView = styled(RNSafeAreaView);
 export default function SignInScreen() {
   const router = useRouter();
   const { signIn } = useSignIn();
+  const { isLoaded } = useAuth();
 
   // Form states
   const [email, setEmail] = useState("");
@@ -85,7 +86,7 @@ export default function SignInScreen() {
       return;
     }
 
-    if (!signIn) return;
+    if (!isLoaded) return;
 
     setIsLoading(true);
     try {
@@ -94,9 +95,9 @@ export default function SignInScreen() {
         password: password,
       });
 
-      if (result?.status === "complete") {
+      if (signIn.status === "complete") {
         // Sign-in successful
-        await result.finalize({
+        await signIn.finalize({
           navigate: ({ session, decorateUrl }: any) => {
             if (session?.currentTask) {
               console.log("Session task:", session.currentTask);
@@ -110,10 +111,10 @@ export default function SignInScreen() {
             }
           },
         });
-      } else if (result?.status === "needs_client_trust") {
+      } else if (signIn.status === "needs_client_trust") {
         // MFA required - send email code
         setShowMFACode(true);
-        const emailCodeFactor = result.supportedSecondFactors?.find(
+        const emailCodeFactor = signIn.supportedSecondFactors?.find(
           (factor: any) => factor.strategy === "email_code",
         );
 
@@ -125,10 +126,10 @@ export default function SignInScreen() {
             setFormError(friendlyError.message);
           }
         }
-      } else if (result?.status === "needs_second_factor") {
+      } else if (signIn.status === "needs_second_factor") {
         // Handle other second factor strategies
         setShowMFACode(true);
-        const emailCodeFactor = result.supportedSecondFactors?.find(
+        const emailCodeFactor = signIn.supportedSecondFactors?.find(
           (factor: any) => factor.strategy === "email_code",
         );
 
@@ -176,9 +177,9 @@ export default function SignInScreen() {
         code: code,
       });
 
-      if (result?.status === "complete") {
+      if (signIn.status === "complete") {
         // MFA verification successful
-        await result.finalize({
+        await signIn.finalize({
           navigate: ({ session, decorateUrl }: any) => {
             if (session?.currentTask) {
               console.log("Session task:", session.currentTask);

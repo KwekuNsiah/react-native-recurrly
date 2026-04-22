@@ -10,7 +10,6 @@ import {
   validateVerificationCode,
 } from "@/lib/validation";
 import { useAuth, useSignUp } from "@clerk/expo";
-import { isLoaded } from "expo-font";
 import { Link, useRouter, type Href } from "expo-router";
 import { styled } from "nativewind";
 import React, { useState } from "react";
@@ -22,7 +21,7 @@ const SafeAreaView = styled(RNSafeAreaView);
 export default function SignUpScreen() {
   const router = useRouter();
   const { signUp, errors, fetchStatus } = useSignUp();
-  const { isLoaded: authIsLoaded } = useAuth();
+  const { isLoaded, authIsLoaded } = useAuth();
 
   // const posthog = usePostHog();
 
