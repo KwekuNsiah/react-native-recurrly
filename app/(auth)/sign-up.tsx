@@ -10,6 +10,7 @@ import {
   validateVerificationCode,
 } from "@/lib/validation";
 import { useAuth, useSignUp } from "@clerk/expo";
+import { isLoaded } from "expo-font";
 import { Link, useRouter, type Href } from "expo-router";
 import { styled } from "nativewind";
 import React, { useState } from "react";
@@ -20,8 +21,10 @@ const SafeAreaView = styled(RNSafeAreaView);
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const { signUp } = useSignUp();
+  const { signUp, errors, fetchStatus } = useSignUp();
   const { isLoaded: authIsLoaded } = useAuth();
+
+  // const posthog = usePostHog();
 
   // Form states
   const [email, setEmail] = useState("");
@@ -104,7 +107,7 @@ export default function SignUpScreen() {
       return;
     }
 
-    if (!signUp) return;
+    if (!isLoaded) return;
 
     setIsLoading(true);
     try {
@@ -113,10 +116,12 @@ export default function SignUpScreen() {
         password: password,
       });
 
-      if (result?.status === "complete") {
+      console.log("the result", result);
+
+      if (signUp.status === "complete") {
         // Account created and verified
-        await result.finalize({
-          navigate: ({ session, decorateUrl }: any) => {
+        await signUp.finalize({
+          navigate: ({ session, decorateUrl }) => {
             if (session?.currentTask) {
               console.log("Session task:", session.currentTask);
               return;
@@ -124,13 +129,13 @@ export default function SignUpScreen() {
             const url = decorateUrl("/");
             if (url.startsWith("http")) {
               // Web platform handling
-              (window as any).location.href = url;
+              window.location.href = url;
             } else {
               router.push(url as Href);
             }
           },
         });
-      } else if (result?.status === "missing_requirements") {
+      } else if (signUp.status === "missing_requirements") {
         // Need to verify
         setVerificationCodeSent(true);
         await signUp.verifications.sendEmailCode();
@@ -167,17 +172,17 @@ export default function SignUpScreen() {
         code: code,
       });
 
-      if (result?.status === "complete") {
+      if (signUp.status === "complete") {
         // Verification successful, finalize sign-up
-        await result.finalize({
-          navigate: ({ session, decorateUrl }: any) => {
+        await signUp.finalize({
+          navigate: ({ session, decorateUrl }) => {
             if (session?.currentTask) {
               console.log("Session task:", session.currentTask);
               return;
             }
             const url = decorateUrl("/");
             if (url.startsWith("http")) {
-              (window as any).location.href = url;
+              window.location.href = url;
             } else {
               router.push(url as Href);
             }
